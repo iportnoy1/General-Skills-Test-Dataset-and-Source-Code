@@ -12,7 +12,7 @@ library(dplyr)
 library(GGally)
 
 #Loading Data
-X <- read.csv('Tests.csv',header = T, dec = '.')
+X <- read.csv('Deidentified Data.csv',header = T, dec = '.')
 
 #Descriptive Statistics Visualization
  
@@ -32,19 +32,24 @@ ggplot(X, aes(x=Period, y=EP, fill=Period)) +
 ggplot(X, aes(x=Period, y=WC, fill=Period)) +
    geom_boxplot()+ scale_fill_brewer(palette="RdBu")
 
+# Splitting Data
+temp <- as.numeric(grepl("2020", X$Period))
+X$COVID <- temp
 
-# Correlation Networks
+
    X_COVID <- X[X$COVID==1,]
    X_No_COVID <- X[X$COVID==0,] 
  
-   temp1 <- as.data.frame(X_COVID[,6:10])
-   temp2 <- as.data.frame(X_No_COVID[,6:10])
-   
+   temp1 <- as.data.frame(X_COVID[,3:7])
+   temp2 <- as.data.frame(X_No_COVID[,3:7])
+
+# Correlation Structures  
    ggpairs(temp1) 
    ggpairs(temp2)
    
-   corMat=cor(X_No_COVID[,6:10])
-   corMat2=cor(X_COVID[,6:10])
+# Correlation Networks
+   corMat=cor(X_No_COVID[,3:7])
+   corMat2=cor(X_COVID[,3:7])
    
    CorMat_mod <- corMat
    CorMat_mod[upper.tri(CorMat_mod)] <- 2
