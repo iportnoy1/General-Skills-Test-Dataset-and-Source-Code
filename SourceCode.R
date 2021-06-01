@@ -10,6 +10,9 @@ library(corrr)
 library(ggplot2)
 library(dplyr)
 library(GGally)
+library(stats)
+library(dgof)
+setwd("C:/Users/idpdl/Desktop/Paper Jessica")
 
 #Loading Data
 X <- read.csv('Deidentified Data.csv',header = T, dec = '.')
@@ -42,7 +45,29 @@ X$COVID <- temp
  
    temp1 <- as.data.frame(X_COVID[,3:7])
    temp2 <- as.data.frame(X_No_COVID[,3:7])
+   
+# Testing Normality
+   NormalityTests_No_COVID <- as.data.frame(matrix(rep(0,length(temp1[1,])),1,5))
+   colnames(NormalityTests_No_COVID) <- colnames(temp1)
+   NormalityTests_COVID <- NormalityTests_No_COVID
 
+   for (i in 1:length(temp1[1,])) {
+     NormalityTests_No_COVID[1,i] <- shapiro.test(temp2[sample(length(temp2[,i]), 5000, replace = F),i])
+     NormalityTests_COVID[1,i] <- shapiro.test(temp1[sample(length(temp1[,i]), 5000, replace = F),i])
+   }
+
+#Differential Analysis: Testing mean and std. dev. equality
+   #Hereby we use the Welch's t-teste and the Fisher's F-test
+   pvals_means <- as.data.frame(matrix(rep(0,length(temp1[1,])),1,5))
+   colnames(pvals_means) <- colnames(temp1)
+   pvals_std_devs <- pvals_means
+   for (i in 1:length(temp1[1,])) {
+     temp <- t.test(temp1[,i],temp2[,i],alternative="two.sided",var.equal=F)
+     pvals_means[1,i] <- temp$p.value
+     temp <- var.test(temp1[,i], temp2[,i], alternative = "two.sided")
+     pvals_std_devs[1,i] <- temp$p.value
+   }
+   
 # Correlation Structures  
    ggpairs(temp1) 
    ggpairs(temp2)
